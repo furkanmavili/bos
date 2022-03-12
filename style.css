@@ -1,26 +1,39 @@
+:root {
+  --primary-color: rgba(98, 155, 255, 0.81);
+}
+
 * {
   box-sizing: border-box;
 }
 
-html {
-  height: 100%;
-}
-
 body {
   margin: 0;
-  height: 100%;
   background-color: hsl(216, 28%, 7%);
   color: hsl(210, 17%, 82%);
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
+  font-family: "Inter", sans-serif;
+  overflow-x: hidden;
+  user-select: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
 }
 
 #app {
-  height: 100%;
   position: relative;
+  min-height: 100vh;
+}
+.logo {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 24px;
+  padding: 10px;
+  display: inline-block;
+  z-index: 2;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease-in-out;
+}
+
+.logo:hover {
+  color: var(--primary-color);
 }
 
 div[contenteditable] {
@@ -29,17 +42,15 @@ div[contenteditable] {
   outline: none;
   position: absolute;
   text-align: left;
-  user-select: none;
 }
 div[contenteditable].selected {
   padding: 5px;
   border-radius: 4px;
-  border:1px dashed rgba(98, 155, 255, 0.81);
+  border: 1px dashed var(--primary-color);
 }
 
 .selection-area {
   background: rgba(46, 115, 252, 0.11);
-  border: 2px solid rgba(98, 155, 255, 0.81);
+  border: 2px solid var(--primary-color);
   border-radius: 0.1em;
-
 }
