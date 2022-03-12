@@ -4,7 +4,7 @@ let selectedItems = []
 
 const initSelectionArea = () => {
   const selection = new SelectionArea({
-    selectables: ["#app > div"],
+    selectables: ["div[contenteditable]"],
     boundaries: ["#app"],
    
   })
