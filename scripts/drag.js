@@ -1,6 +1,6 @@
 import interact from "interactjs";
-
-function addInteract(element, saveToStorage) {
+import {saveToStorage} from "./storage"
+function addInteract(element) {
   interact(element).draggable({
     inertia: true,
     modifiers: [
@@ -13,7 +13,14 @@ function addInteract(element, saveToStorage) {
     listeners: {
       move: dragMoveListener,
       end(event) {
-        saveToStorage(event.target.id, event.target.textContent, event.rect.left, event.rect.top);
+        const data = {
+          id: event.target.id, 
+          text: event.target.textContent,
+          x: event.rect.left,
+          y: event.rect.top,
+          textSize: event.target.style.fontSize.replace("px", "")
+        }
+        saveToStorage(data);
       },
     },
   });
