@@ -1,63 +1,95 @@
 import { initSelectionArea, getSelectedItems } from "./selection";
 import { addInteract } from "./drag";
-import { getDataFromStorage, removeItemFromStorage, saveToStorage, updateItem } from "./storage";
+import { getDataFromStorage, updateItem } from "./storage";
 import { ACTIONS } from "./actions";
 import { eventEmitter } from "./EventEmitter";
 import { checkScrollDirection } from "./scroll";
 import "../style.css";
 
 const ID_PREFIX = "bos-editor-";
+const COLORS = ["hsl(210, 17%, 82%)", "#f87171", "#22d3ee", "#22c55e", "#facc15"];
+let color = 0;
 let id = 0;
 let textSize = 16;
 
 window.addEventListener("DOMContentLoaded", () => {
   addDataToDom();
+  const selection = initSelectionArea();
   const app = document.querySelector("#app");
+  const option = document.querySelector("#option")
   window.addEventListener("click", function (event) {
+    if (event.target.id === "option") {
+      onOptionClick()
+      return;
+    }
     if (event.target.id !== "app") return;
-    resetAllEditableDivs()
+    resetAllEditableDivs();
     const nextId = ++id;
-    const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize);
+    const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize, getColor(color));
     addInteract(div);
     app.appendChild(div);
   });
   window.addEventListener("keydown", (e) => {
-    if (e.key === "Delete") {
-      const selectedItems = getSelectedItems();
-      selectedItems.forEach((item) => {
-        item.remove();
-        removeItemFromStorage(item.id);
-      });
+    switch (e.key) {
+      case "Tab":
+        e.preventDefault();
+      case "Escape":
+        document.querySelector("div[contenteditable='true'").blur();
+        selection.deselect();
+      case "Delete":
+        const selectedItems = getSelectedItems();
+        selectedItems.forEach((item) => {
+          item.remove();
+          eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
+        });
     }
   });
   window.addEventListener("wheel", checkScrollDirection);
+
   eventEmitter.on(ACTIONS.INCREASE_FONT, () => {
     if (textSize > 32) return;
     textSize += 2;
-    updateActiveElementFontSize()
+    updateActiveElementFontSize();
     updateFontSizeIndicator();
   });
   eventEmitter.on(ACTIONS.DECREASE_FONT, () => {
     if (textSize < 14) return;
     textSize -= 2;
-    updateActiveElementFontSize()
+    updateActiveElementFontSize();
     updateFontSizeIndicator();
   });
+  eventEmitter.on(ACTIONS.TAKE_SNAPSHOT, () => {
+    const elements = document.querySelectorAll("div[contenteditable]");
+    let data = [];
+    elements.forEach((element) => {
+      data.push({
+        id: element.id,
+        x: getOffset(element).left,
+        y: getOffset(element).top,
+        text: element.textContent,
+        textSize: element.style.fontSize.replace("px", ""),
+        color: element.style.color 
+      });
+    });
 
-  initSelectionArea();
+    localStorage.setItem("bos_data", JSON.stringify(data));
+  });
+  eventEmitter.on(ACTIONS.CHANGE_COLOR, (_, payload) => {
+    console.log(payload.color)
+    option.style.color = payload.color
+  })
 });
 
-
-
-function createDiv(id, x, y, textSize) {
+function createDiv(id, x, y, textSize, color) {
   const div = document.createElement("div");
   div.setAttribute("contenteditable", "true");
   div.setAttribute("id", id);
   div.style.left = x + "px";
   div.style.top = y + "px";
   div.style.fontSize = textSize + "px";
+  div.style.color = color;
   div.addEventListener("input", function (event) {
-    saveToStorage({id, text: event.target.textContent, x, y, textSize});
+    eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
   });
   div.addEventListener("click", function (event) {
     event.target.setAttribute("contenteditable", "true");
@@ -68,7 +100,7 @@ function createDiv(id, x, y, textSize) {
       event.target.remove();
     } else {
       event.target.setAttribute("contenteditable", "false");
-      saveToStorage({id, text: event.target.textContent, x, y, textSize: event.target.style.fontSize.replace("px", "")});
+      eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
     }
   });
   setTimeout(function () {
@@ -87,13 +119,14 @@ function addDataToDom() {
         textSize: 16,
         x: window.innerWidth / 2 - 140,
         y: window.innerHeight / 2,
+        color: COLORS[color]
       },
     ];
   }
   const app = document.querySelector("#app");
   id = Number(data[data.length - 1].id.replace(ID_PREFIX, ""));
   data.forEach((item) => {
-    const div = createDiv(item.id, item.x, item.y, item.textSize);
+    const div = createDiv(item.id, item.x, item.y, item.textSize, item.color);
     div.innerHTML = item.text;
     addInteract(div);
     app.appendChild(div);
@@ -101,19 +134,36 @@ function addDataToDom() {
 }
 
 function resetAllEditableDivs() {
-  document.querySelectorAll("div[contenteditable='true']").forEach(item => {
-  item.setAttribute('contenteditable', 'false')
-  })
+  document.querySelectorAll("div[contenteditable='true']").forEach((item) => {
+    item.setAttribute("contenteditable", "false");
+  });
 }
 
 function updateActiveElementFontSize() {
-  const activeElement = document.querySelector("div[contenteditable='true']")
-  console.log(activeElement)
-  activeElement.style.fontSize = textSize + "px"
-  updateItem(activeElement.id, {textSize: textSize})
+  const activeElement = document.querySelector("div[contenteditable='true']");
+  if (!activeElement) return
+  activeElement.style.fontSize = textSize + "px";
+  updateItem(activeElement.id, { textSize: textSize });
+  eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
 }
 
 function updateFontSizeIndicator() {
   const element = document.querySelector(".text-size");
   element.style.fontSize = textSize + "px";
+}
+
+function onOptionClick(e) {
+  eventEmitter.emit(ACTIONS.CHANGE_COLOR, {color: COLORS[++color % COLORS.length]})
+}
+
+function getColor(index) {
+  return COLORS[index % COLORS.length]
+}
+
+function getOffset(el) {
+  const rect = el.getBoundingClientRect();
+  return {
+    left: rect.left + window.scrollX,
+    top: rect.top + window.scrollY,
+  };
 }
