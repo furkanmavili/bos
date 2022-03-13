@@ -1,5 +1,6 @@
 import interact from "interactjs";
-import {saveToStorage} from "./storage"
+import { eventEmitter } from "./EventEmitter";
+import { ACTIONS } from "./actions";
 function addInteract(element) {
   interact(element).draggable({
     inertia: true,
@@ -13,14 +14,7 @@ function addInteract(element) {
     listeners: {
       move: dragMoveListener,
       end(event) {
-        const data = {
-          id: event.target.id, 
-          text: event.target.textContent,
-          x: event.rect.left,
-          y: event.rect.top,
-          textSize: event.target.style.fontSize.replace("px", "")
-        }
-        saveToStorage(data);
+        eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT)
       },
     },
   });

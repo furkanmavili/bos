@@ -23,14 +23,15 @@ function updateItem(id, props) {
 } 
 
 
-function saveToStorage({id, text, textSize, x, y}) {
+function saveToStorage({id, text, textSize, x, y, color}) {
   let oldData = getDataFromStorage()
   const data = {
     id: id,
     x: Math.floor(x),
     y: Math.floor(y),
     text: text,
-    textSize: textSize
+    textSize: textSize,
+    color: color
   }
   let exist = oldData.findIndex(data => data.id === id)
   if (exist !== -1) {
