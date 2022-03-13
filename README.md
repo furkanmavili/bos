@@ -8,6 +8,7 @@ A minimal focus-based editor.
 - Click anywhere and start typing.
 - Draggable texts.
 - Select multiple texts with mouse. 
+- Change font size with scroll
 - Sync with localstorage
 
 ### Project Setup
