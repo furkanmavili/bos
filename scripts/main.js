@@ -118,6 +118,7 @@ function addDataToDom() {
   if (data.length === 0 && isFirstTime !== "hide") {
     data = guideItems
   }
+  if (data.length === 0) return
   const app = document.querySelector("#app");
   id = Number(data[data.length - 1].id.replace(ID_PREFIX, ""));
   data.forEach((item) => {
