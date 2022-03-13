@@ -72,7 +72,9 @@ div[contenteditable].selected {
   cursor: pointer;
   transition: var(--transition);
 }
-
+.saveAs > svg {
+  pointer-events: none;
+}
 .saveAs:hover {
   color: var(--primary-color);
 }

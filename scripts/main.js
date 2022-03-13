@@ -24,7 +24,6 @@ window.addEventListener("DOMContentLoaded", () => {
       onOptionClick()
       return;
     } else if (event.target.id === "saveAs") {
-      console.log('hey')
       downloadAsImage(app)
     }
     if (event.target.id !== "app") return;
