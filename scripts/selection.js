@@ -1,4 +1,5 @@
 import SelectionArea from "@viselect/vanilla";
+import { eventEmitter } from "./EventEmitter";
 
 let selectedItems = []
 
@@ -6,7 +7,6 @@ const initSelectionArea = () => {
   const selection = new SelectionArea({
     selectables: ["div[contenteditable]"],
     boundaries: ["#app"],
-   
   })
     .on("beforestart", ({ event }) => {
       if (event.target.hasAttribute("contenteditable")) {
@@ -41,9 +41,10 @@ const initSelectionArea = () => {
         }
       }
     )
-    .on("stop", ({ store: {selected} }) => {
-      selectedItems = selected
+    .on("stop", ({ store }) => {
+      selectedItems = store.selected
     });
+    return selection
 };
 
 function getSelectedItems() {
