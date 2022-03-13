@@ -14,13 +14,23 @@ function removeItemFromStorage(id) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered))
 }
 
-function saveToStorage(id, text, x, y) {
+function updateItem(id, props) {
+  let oldData = getDataFromStorage()
+  let exist = oldData.findIndex(data => data.id === id)
+  if (exist === -1) return
+  oldData[exist] = {...oldData[exist], ...props}
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(oldData))
+} 
+
+
+function saveToStorage({id, text, textSize, x, y}) {
   let oldData = getDataFromStorage()
   const data = {
     id: id,
     x: Math.floor(x),
     y: Math.floor(y),
-    text: text
+    text: text,
+    textSize: textSize
   }
   let exist = oldData.findIndex(data => data.id === id)
   if (exist !== -1) {
@@ -31,4 +41,4 @@ function saveToStorage(id, text, x, y) {
   localStorage.setItem(STORAGE_KEY,JSON.stringify(oldData))
 }
 
-export {getDataFromStorage, removeItemFromStorage, saveToStorage}
+export {getDataFromStorage, removeItemFromStorage, saveToStorage, updateItem}
