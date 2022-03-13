@@ -4,6 +4,7 @@ import { getDataFromStorage, updateItem } from "./storage";
 import { ACTIONS } from "./actions";
 import { eventEmitter } from "./EventEmitter";
 import { checkScrollDirection } from "./scroll";
+import {guideItems} from "./initialData"
 import "../style.css";
 
 const ID_PREFIX = "bos-editor-";
@@ -111,17 +112,9 @@ function createDiv(id, x, y, textSize, color) {
 
 function addDataToDom() {
   let data = getDataFromStorage();
-  if (data.length === 0) {
-    data = [
-      {
-        id: "bos-editor-0",
-        text: "Click anywhere :)",
-        textSize: 16,
-        x: window.innerWidth / 2 - 140,
-        y: window.innerHeight / 2,
-        color: COLORS[color]
-      },
-    ];
+  const isFirstTime = localStorage.getItem("bos-guide")
+  if (data.length === 0 && isFirstTime !== "hide") {
+    data = guideItems
   }
   const app = document.querySelector("#app");
   id = Number(data[data.length - 1].id.replace(ID_PREFIX, ""));
@@ -131,6 +124,8 @@ function addDataToDom() {
     addInteract(div);
     app.appendChild(div);
   });
+
+  localStorage.setItem("bos-guide", "hide")
 }
 
 function resetAllEditableDivs() {
