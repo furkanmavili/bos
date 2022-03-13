@@ -10,6 +10,7 @@ A minimal focus-based editor.
 - Select multiple texts with mouse. 
 - Change font size with scroll
 - Color option
+- Download as image
 - Sync with localstorage
 
 ### Project Setup
