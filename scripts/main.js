@@ -5,6 +5,7 @@ import { ACTIONS } from "./actions";
 import { eventEmitter } from "./EventEmitter";
 import { checkScrollDirection } from "./scroll";
 import {guideItems} from "./initialData"
+import {downloadAsImage} from "./export"
 import "../style.css";
 
 const ID_PREFIX = "bos-editor-";
@@ -22,6 +23,9 @@ window.addEventListener("DOMContentLoaded", () => {
     if (event.target.id === "option") {
       onOptionClick()
       return;
+    } else if (event.target.id === "saveAs") {
+      console.log('hey')
+      downloadAsImage(app)
     }
     if (event.target.id !== "app") return;
     resetAllEditableDivs();
@@ -46,7 +50,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
   window.addEventListener("wheel", checkScrollDirection);
-
   eventEmitter.on(ACTIONS.INCREASE_FONT, () => {
     if (textSize > 32) return;
     textSize += 2;

@@ -1,5 +1,6 @@
 :root {
   --primary-color: rgba(98, 155, 255, 0.81);
+  --transition: all 0.2s ease-in-out;
 }
 
 * {
@@ -30,7 +31,7 @@ body {
   z-index: 2;
   text-decoration: none;
   color: inherit;
-  transition: all 0.3s ease-in-out;
+  transition: var(--transition);
 }
 
 .logo:hover {
@@ -62,5 +63,16 @@ div[contenteditable].selected {
   bottom: 10px;
   left: 10px;
   cursor: pointer;
-  transition: all .2s ease-in-out;
+  transition: var(--transition);
+}
+.saveAs {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.saveAs:hover {
+  color: var(--primary-color);
 }
