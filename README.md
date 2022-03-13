@@ -9,6 +9,7 @@ A minimal focus-based editor.
 - Draggable texts.
 - Select multiple texts with mouse. 
 - Change font size with scroll
+- Color option
 - Sync with localstorage
 
 ### Project Setup
