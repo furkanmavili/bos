@@ -1,4 +1,4 @@
-import { selection, removeSelections} from "./selection";
+import { selection, isSelectionActive} from "./selection";
 import { addInteract } from "./drag";
 import { getDataFromStorage, updateItem } from "./storage";
 import { ACTIONS } from "./actions";
@@ -25,9 +25,8 @@ window.addEventListener("DOMContentLoaded", () => {
     } else if (event.target.id === "saveAs") {
       downloadAsImage(app)
     }
-    if (event.target.id !== "app") return;
+    if (event.target.id !== "app" || isSelectionActive) return;
     resetAllEditableDivs();
-    // removeSelections()
     const nextId = ++id;
     const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize, getColor(color));
     addInteract(div);
@@ -37,6 +36,7 @@ window.addEventListener("DOMContentLoaded", () => {
     switch (e.key) {
       case "Tab":
         e.preventDefault();
+        selection.select('div')
         break;
       case "Escape":
         document.querySelector("div[contenteditable='true'")?.blur();
@@ -81,7 +81,6 @@ window.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("bos_data", JSON.stringify(data));
   });
   eventEmitter.on(ACTIONS.CHANGE_COLOR, (_, payload) => {
-    console.log(payload.color)
     option.style.color = payload.color
   })
 });

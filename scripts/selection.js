@@ -1,52 +1,54 @@
 import SelectionArea from "@viselect/vanilla";
-import { eventEmitter } from "./EventEmitter";
 
-  const selection = new SelectionArea({
-    selectables: ["div[contenteditable]"],
-    boundaries: ["#app"],
+let isSelectionActive = false;
+const selection = new SelectionArea({
+  selectables: ["div[contenteditable]"],
+  boundaries: ["#app"],
+})
+  .on("beforestart", ({ event }) => {
+    isSelectionActive = false;
+    if (event.target.hasAttribute("contenteditable")) {
+      return false;
+    }
   })
-    .on("beforestart", ({ event }) => {
-      if (event.target.hasAttribute("contenteditable")) {
-        return false;
+  .on("start", ({ store, event }) => {
+    if (event.target.hasAttribute("contenteditable")) {
+      return;
+    }
+    if (!event.ctrlKey && !event.metaKey) {
+      for (const el of store.stored) {
+        el.classList.remove("selected");
       }
-    })
-    .on("start", ({ store, event }) => {
-      if (event.target.hasAttribute("contenteditable")) {
-        return;
+
+      selection.clearSelection();
+    }
+    isSelectionActive = true;
+  })
+  .on(
+    "move",
+    ({
+      store: {
+        changed: { added, removed },
+      },
+    }) => {
+      for (const el of added) {
+        el.classList.add("selected");
       }
-      if (!event.ctrlKey && !event.metaKey) {
-        for (const el of store.stored) {
-          el.classList.remove("selected");
-        }
 
-        selection.clearSelection();
+      for (const el of removed) {
+        el.classList.remove("selected");
       }
-    })
-    .on(
-      "move",
-      ({
-        store: {
-          changed: { added, removed },
-        },
-      }) => {
-        for (const el of added) {
-          el.classList.add("selected");
-        }
-
-        for (const el of removed) {
-          el.classList.remove("selected");
-        }
-      }
-    )
-    .on("stop", ({ store }) => {
-    });
-
-
-
+    }
+  )
+  .on("stop", ({ store }) => {
+    setTimeout(() => {
+      isSelectionActive = false;
+    }, 300);
+  });
 
 function removeSelections() {
-  document.querySelectorAll(".selected").forEach(item => item.classList.remove('selected'))
-  selection.clearSelection(true)
+  document.querySelectorAll(".selected").forEach((item) => item.classList.remove("selected"));
+  selection.clearSelection(true);
 }
 
-export {selection, removeSelections}
+export { selection, removeSelections, isSelectionActive };
