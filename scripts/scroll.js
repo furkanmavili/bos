@@ -1,11 +1,11 @@
 import { ACTIONS } from "./actions";
 import { eventEmitter } from "./EventEmitter";
 
-function checkScrollDirection(event) {
+function onScroll(event) {
   if (checkScrollDirectionIsUp(event)) {
-    eventEmitter.emit(ACTIONS.INCREASE_FONT);
+    eventEmitter.emit(ACTIONS.SCROLL_END, {direction: "up"});
   } else {
-    eventEmitter.emit(ACTIONS.DECREASE_FONT);
+    eventEmitter.emit(ACTIONS.SCROLL_END, {direction: "down"});
   }
 }
 
@@ -16,4 +16,4 @@ function checkScrollDirectionIsUp(event) {
   return event.deltaY < 0;
 }
 
-export { checkScrollDirection };
+export { onScroll };

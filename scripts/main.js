@@ -3,7 +3,7 @@ import { addInteract } from "./drag";
 import { getDataFromStorage, updateItem } from "./storage";
 import { ACTIONS } from "./actions";
 import { eventEmitter } from "./EventEmitter";
-import { checkScrollDirection } from "./scroll";
+import { onScroll } from "./scroll";
 import {guideItems} from "./initialData"
 import {downloadAsImage} from "./export"
 import "../style.css";
@@ -28,6 +28,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     if (event.target.id !== "app") return;
     resetAllEditableDivs();
+    selection.clearSelection(true)
     const nextId = ++id;
     const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize, getColor(color));
     addInteract(div);
@@ -52,19 +53,19 @@ window.addEventListener("DOMContentLoaded", () => {
         });
     }
   });
-  window.addEventListener("wheel", checkScrollDirection);
-  eventEmitter.on(ACTIONS.INCREASE_FONT, () => {
-    if (textSize > 32) return;
-    textSize += 2;
-    updateActiveElementFontSize();
+  window.addEventListener("wheel", onScroll);
+  eventEmitter.on(ACTIONS.SCROLL_END, (_, payload) => {
+    if (payload.direction === "up") {
+      if (textSize > 32) return;
+      textSize += 2;
+    } else {
+      if (textSize < 14) return;
+      textSize -= 2;
+    }
+    updateSelectedElements();
     updateFontSizeIndicator();
   });
-  eventEmitter.on(ACTIONS.DECREASE_FONT, () => {
-    if (textSize < 14) return;
-    textSize -= 2;
-    updateActiveElementFontSize();
-    updateFontSizeIndicator();
-  });
+
   eventEmitter.on(ACTIONS.TAKE_SNAPSHOT, () => {
     const elements = document.querySelectorAll("div[contenteditable]");
     let data = [];
@@ -143,12 +144,15 @@ function resetAllEditableDivs() {
   });
 }
 
-function updateActiveElementFontSize() {
+function updateSelectedElements() {
   const activeElement = document.querySelector("div[contenteditable='true']");
-  if (!activeElement) return
-  activeElement.style.fontSize = textSize + "px";
-  updateItem(activeElement.id, { textSize: textSize });
-  eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
+  const selectedItems = document.querySelectorAll(".selected")
+  const allItems = [activeElement, ...selectedItems]
+  if (allItems.length === 0) return
+  allItems.forEach(item => {
+    item.style.fontSize = textSize + "px";
+    eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
+  })
 }
 
 function updateFontSizeIndicator() {
