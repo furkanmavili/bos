@@ -50,5 +50,7 @@ function removeSelections() {
   document.querySelectorAll(".selected").forEach((item) => item.classList.remove("selected"));
   selection.clearSelection(true);
 }
-
-export { selection, removeSelections, isSelectionActive };
+function getSelectedItems() {
+  return selection.getSelection()
+}
+export { selection, removeSelections, isSelectionActive, getSelectedItems };

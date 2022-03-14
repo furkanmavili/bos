@@ -1,4 +1,4 @@
-import { selection, isSelectionActive} from "./selection";
+import { selection, isSelectionActive, getSelectedItems, removeSelections} from "./selection";
 import { addInteract } from "./drag";
 import { getDataFromStorage, updateItem } from "./storage";
 import { ACTIONS } from "./actions";
@@ -25,10 +25,12 @@ window.addEventListener("DOMContentLoaded", () => {
     } else if (event.target.id === "saveAs") {
       downloadAsImage(app)
     }
-    if (event.target.id !== "app" || isSelectionActive) return;
-    resetAllEditableDivs();
+    if (event.target.id !== "app" || isSelectionActive) {
+      return;
+    }
     const nextId = ++id;
     const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize, getColor(color));
+    removeSelections()
     addInteract(div);
     app.appendChild(div);
   });
@@ -77,11 +79,15 @@ window.addEventListener("DOMContentLoaded", () => {
         color: element.style.color 
       });
     });
-
     localStorage.setItem("bos_data", JSON.stringify(data));
   });
   eventEmitter.on(ACTIONS.CHANGE_COLOR, (_, payload) => {
+    const selectedItems = getSelectedItems()
+    selectedItems.forEach(item => {
+      item.style.color = payload.color
+    })
     option.style.color = payload.color
+    eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT)
   })
 });
 
