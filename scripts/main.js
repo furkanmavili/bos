@@ -1,4 +1,4 @@
-import { initSelectionArea, getSelectedItems } from "./selection";
+import { selection, removeSelections} from "./selection";
 import { addInteract } from "./drag";
 import { getDataFromStorage, updateItem } from "./storage";
 import { ACTIONS } from "./actions";
@@ -16,7 +16,6 @@ let textSize = 16;
 
 window.addEventListener("DOMContentLoaded", () => {
   addDataToDom();
-  const selection = initSelectionArea();
   const app = document.querySelector("#app");
   const option = document.querySelector("#option")
   window.addEventListener("click", function (event) {
@@ -28,7 +27,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     if (event.target.id !== "app") return;
     resetAllEditableDivs();
-    selection.clearSelection(true)
+    // removeSelections()
     const nextId = ++id;
     const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize, getColor(color));
     addInteract(div);
@@ -46,7 +45,6 @@ window.addEventListener("DOMContentLoaded", () => {
         break;
       case "Delete":
         const selectedItems = selection.getSelection();
-        console.log(selectedItems)
         selectedItems.forEach((item) => {
           item.remove();
           eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
@@ -148,7 +146,7 @@ function updateSelectedElements() {
   const activeElement = document.querySelector("div[contenteditable='true']");
   const selectedItems = document.querySelectorAll(".selected")
   const allItems = [activeElement, ...selectedItems]
-  if (allItems.length === 0) return
+  if (!allItems.length === 0 || !activeElement) return
   allItems.forEach(item => {
     item.style.fontSize = textSize + "px";
     eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
