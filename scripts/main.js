@@ -91,6 +91,8 @@ function createDiv(id, x, y, textSize, color) {
   const div = document.createElement("div");
   div.setAttribute("contenteditable", "true");
   div.setAttribute("id", id);
+  div.setAttribute("data-x", 0);
+  div.setAttribute("data-y", 0);
   div.style.left = x + "px";
   div.style.top = y + "px";
   div.style.fontSize = textSize + "px";
