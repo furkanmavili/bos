@@ -37,11 +37,15 @@ window.addEventListener("DOMContentLoaded", () => {
     switch (e.key) {
       case "Tab":
         e.preventDefault();
+        break;
       case "Escape":
-        document.querySelector("div[contenteditable='true'").blur();
-        selection.deselect();
+        document.querySelector("div[contenteditable='true'")?.blur();
+        document.querySelectorAll(".selected").forEach(item => item.classList.remove('selected'))
+        selection.clearSelection(true)
+        break;
       case "Delete":
-        const selectedItems = getSelectedItems();
+        const selectedItems = selection.getSelection();
+        console.log(selectedItems)
         selectedItems.forEach((item) => {
           item.remove();
           eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
