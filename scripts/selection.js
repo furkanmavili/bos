@@ -1,9 +1,6 @@
 import SelectionArea from "@viselect/vanilla";
 import { eventEmitter } from "./EventEmitter";
 
-let selectedItems = []
-
-const initSelectionArea = () => {
   const selection = new SelectionArea({
     selectables: ["div[contenteditable]"],
     boundaries: ["#app"],
@@ -42,13 +39,14 @@ const initSelectionArea = () => {
       }
     )
     .on("stop", ({ store }) => {
-      selectedItems = store.selected
     });
-    return selection
-};
 
-function getSelectedItems() {
-  return selectedItems
+
+
+
+function removeSelections() {
+  document.querySelectorAll(".selected").forEach(item => item.classList.remove('selected'))
+  selection.clearSelection(true)
 }
 
-export {initSelectionArea, getSelectedItems}
+export {selection, removeSelections}
