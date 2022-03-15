@@ -47,11 +47,7 @@ div[contenteditable] {
   touch-action: none;
   user-select: none;
 }
-div[contenteditable].selected {
-  padding: 5px 10px;
-  border-radius: 4px;
-  border: 1px dashed var(--primary-color);
-}
+
 .selection-area {
   background: rgba(46, 115, 252, 0.11);
   border: 2px solid var(--primary-color);
@@ -77,4 +73,20 @@ div[contenteditable].selected {
 }
 .saveAs:hover {
   color: var(--primary-color);
+}
+
+
+
+.selected {
+  position: relative;
+
+}
+.selected:before {
+  content: " ";
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  top: -5px;
+  bottom: -5px;
+  border: 2px dashed var(--primary-color);
 }
