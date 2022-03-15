@@ -1,11 +1,11 @@
-import { selection, isSelectionActive, getSelectedItems, removeSelections} from "./selection";
+import { selection, isSelectionActive, getSelectedItems, removeSelections } from "./selection";
 import { addInteract } from "./drag";
 import { getDataFromStorage, updateItem } from "./storage";
 import { ACTIONS } from "./actions";
 import { eventEmitter } from "./EventEmitter";
 import { onScroll } from "./scroll";
-import {guideItems} from "./initialData"
-import {downloadAsImage} from "./export"
+import { guideItems } from "./initialData";
+import { downloadAsImage } from "./export";
 import "../style.css";
 
 const ID_PREFIX = "bos-editor-";
@@ -17,34 +17,39 @@ let textSize = 16;
 window.addEventListener("DOMContentLoaded", () => {
   addDataToDom();
   const app = document.querySelector("#app");
-  const option = document.querySelector("#option")
+  const option = document.querySelector("#option");
   window.addEventListener("click", function (event) {
     if (event.target.id === "option") {
-      onOptionClick()
+      onOptionClick();
       return;
     } else if (event.target.id === "saveAs") {
-      downloadAsImage(app)
+      downloadAsImage(app);
     }
     if (event.target.id !== "app" || isSelectionActive) {
       return;
     }
     const nextId = ++id;
     const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize, getColor(color));
-    removeSelections()
-    document.querySelectorAll("div[contenteditable='true']").forEach(item => item.setAttribute("contenteditable", true))
+    removeSelections();
+    resetAllEditableDivs();
     addInteract(div);
     app.appendChild(div);
   });
   window.addEventListener("keydown", (e) => {
     switch (e.key) {
+      case "a":
+        if (e.ctrlKey) {
+          selection.select("div[contenteditable]");
+        }
+        break;
       case "Tab":
         e.preventDefault();
-        selection.select('div')
+        selection.select("div");
         break;
       case "Escape":
         document.querySelector("div[contenteditable='true'")?.blur();
-        document.querySelectorAll(".selected").forEach(item => item.classList.remove('selected'))
-        selection.clearSelection(true)
+        document.querySelectorAll(".selected").forEach((item) => item.classList.remove("selected"));
+        selection.clearSelection(true);
         break;
       case "Delete":
         const selectedItems = selection.getSelection();
@@ -55,8 +60,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
   window.addEventListener("wheel", onScroll);
-
-
 
   eventEmitter.on(ACTIONS.SCROLL_END, (_, payload) => {
     if (payload.direction === "up") {
@@ -80,24 +83,24 @@ window.addEventListener("DOMContentLoaded", () => {
         y: getOffset(element).top,
         text: element.textContent,
         textSize: element.style.fontSize.replace("px", ""),
-        color: element.style.color 
+        color: element.style.color,
       });
     });
     localStorage.setItem("bos_data", JSON.stringify(data));
   });
   eventEmitter.on(ACTIONS.CHANGE_COLOR, (_, payload) => {
-    const selectedItems = getSelectedItems()
-    console.log(selectedItems)
-    selectedItems.forEach(item => {
-      item.style.color = payload.color
-    })
+    const selectedItems = getSelectedItems();
+    console.log(selectedItems);
+    selectedItems.forEach((item) => {
+      item.style.color = payload.color;
+    });
 
-    option.style.color = payload.color
-    eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT)
-  })
+    option.style.color = payload.color;
+    eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
+  });
 });
 
-function createDiv(id, x, y, textSize, color) {
+function createDiv(id, x, y, textSize, color, text = "") {
   const div = document.createElement("div");
   div.setAttribute("contenteditable", "true");
   div.setAttribute("id", id);
@@ -107,6 +110,7 @@ function createDiv(id, x, y, textSize, color) {
   div.style.top = y + "px";
   div.style.fontSize = textSize + "px";
   div.style.color = color;
+  div.textContent = text
   div.addEventListener("input", function (event) {
     eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
   });
@@ -130,11 +134,11 @@ function createDiv(id, x, y, textSize, color) {
 
 function addDataToDom() {
   let data = getDataFromStorage();
-  const isFirstTime = localStorage.getItem("bos-guide")
+  const isFirstTime = localStorage.getItem("bos-guide");
   if (data.length === 0 && isFirstTime !== "hide") {
-    data = guideItems
+    data = guideItems;
   }
-  if (data.length === 0) return
+  if (data.length === 0) return;
   const app = document.querySelector("#app");
   id = Number(data[data.length - 1].id.replace(ID_PREFIX, ""));
   data.forEach((item) => {
@@ -144,7 +148,7 @@ function addDataToDom() {
     app.appendChild(div);
   });
 
-  localStorage.setItem("bos-guide", "hide")
+  localStorage.setItem("bos-guide", "hide");
 }
 
 function resetAllEditableDivs() {
@@ -155,14 +159,14 @@ function resetAllEditableDivs() {
 
 function updateSelectedElements() {
   const activeElement = document.querySelector("div[contenteditable='true']");
-  const selectedItems = document.querySelectorAll(".selected")
-  const allItems = [activeElement, ...selectedItems].filter(i => i !== null)
-  console.log(allItems)
-  if (!allItems.length === 0 ) return
-  allItems.forEach(item => {
+  const selectedItems = document.querySelectorAll(".selected");
+  const allItems = [activeElement, ...selectedItems].filter((i) => i !== null);
+  console.log(allItems);
+  if (!allItems.length === 0) return;
+  allItems.forEach((item) => {
     item.style.fontSize = textSize + "px";
     eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
-  })
+  });
 }
 
 function updateFontSizeIndicator() {
@@ -171,11 +175,11 @@ function updateFontSizeIndicator() {
 }
 
 function onOptionClick(e) {
-  eventEmitter.emit(ACTIONS.CHANGE_COLOR, {color: COLORS[++color % COLORS.length]})
+  eventEmitter.emit(ACTIONS.CHANGE_COLOR, { color: COLORS[++color % COLORS.length] });
 }
 
 function getColor(index) {
-  return COLORS[index % COLORS.length]
+  return COLORS[index % COLORS.length];
 }
 
 function getOffset(el) {
