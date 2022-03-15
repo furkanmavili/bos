@@ -31,6 +31,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const nextId = ++id;
     const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize, getColor(color));
     removeSelections()
+    document.querySelectorAll("div[contenteditable='true']").forEach(item => item.setAttribute("contenteditable", true))
     addInteract(div);
     app.appendChild(div);
   });
@@ -54,6 +55,9 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
   window.addEventListener("wheel", onScroll);
+
+
+
   eventEmitter.on(ACTIONS.SCROLL_END, (_, payload) => {
     if (payload.direction === "up") {
       if (textSize > 32) return;
@@ -83,9 +87,11 @@ window.addEventListener("DOMContentLoaded", () => {
   });
   eventEmitter.on(ACTIONS.CHANGE_COLOR, (_, payload) => {
     const selectedItems = getSelectedItems()
+    console.log(selectedItems)
     selectedItems.forEach(item => {
       item.style.color = payload.color
     })
+
     option.style.color = payload.color
     eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT)
   })
@@ -150,8 +156,9 @@ function resetAllEditableDivs() {
 function updateSelectedElements() {
   const activeElement = document.querySelector("div[contenteditable='true']");
   const selectedItems = document.querySelectorAll(".selected")
-  const allItems = [activeElement, ...selectedItems]
-  if (!allItems.length === 0 || !activeElement) return
+  const allItems = [activeElement, ...selectedItems].filter(i => i !== null)
+  console.log(allItems)
+  if (!allItems.length === 0 ) return
   allItems.forEach(item => {
     item.style.fontSize = textSize + "px";
     eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
