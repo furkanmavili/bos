@@ -1,11 +1,13 @@
 import { selection, isSelectionActive, getSelectedItems, removeSelections } from "./selection";
 import { addInteract } from "./drag";
-import { getDataFromStorage, updateItem } from "./storage";
+import { getDataFromStorage } from "./storage";
 import { ACTIONS } from "./actions";
 import { eventEmitter } from "./EventEmitter";
 import { onScroll } from "./scroll";
 import { guideItems } from "./initialData";
 import { downloadAsImage } from "./export";
+import { initKeyboardEvents } from "./keyboard";
+import { createDiv, resetAllEditableDivs } from "./dom";
 import "../style.css";
 
 const ID_PREFIX = "bos-editor-";
@@ -15,9 +17,13 @@ let id = 0;
 let textSize = 16;
 
 window.addEventListener("DOMContentLoaded", () => {
-  addDataToDom();
   const app = document.querySelector("#app");
   const option = document.querySelector("#option");
+
+  loadData();
+  initKeyboardEvents();
+  window.addEventListener("wheel", onScroll);
+
   window.addEventListener("click", function (event) {
     if (event.target.id === "option") {
       onOptionClick();
@@ -35,31 +41,7 @@ window.addEventListener("DOMContentLoaded", () => {
     addInteract(div);
     app.appendChild(div);
   });
-  window.addEventListener("keydown", (e) => {
-    switch (e.key) {
-      case "a":
-        if (e.ctrlKey) {
-          selection.select("div[contenteditable]");
-        }
-        break;
-      case "Tab":
-        e.preventDefault();
-        selection.select("div");
-        break;
-      case "Escape":
-        document.querySelector("div[contenteditable='true'")?.blur();
-        document.querySelectorAll(".selected").forEach((item) => item.classList.remove("selected"));
-        selection.clearSelection(true);
-        break;
-      case "Delete":
-        const selectedItems = selection.getSelection();
-        selectedItems.forEach((item) => {
-          item.remove();
-          eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
-        });
-    }
-  });
-  window.addEventListener("wheel", onScroll);
+
 
   eventEmitter.on(ACTIONS.SCROLL_END, (_, payload) => {
     if (payload.direction === "up") {
@@ -90,7 +72,6 @@ window.addEventListener("DOMContentLoaded", () => {
   });
   eventEmitter.on(ACTIONS.CHANGE_COLOR, (_, payload) => {
     const selectedItems = getSelectedItems();
-    console.log(selectedItems);
     selectedItems.forEach((item) => {
       item.style.color = payload.color;
     });
@@ -98,41 +79,26 @@ window.addEventListener("DOMContentLoaded", () => {
     option.style.color = payload.color;
     eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
   });
+  eventEmitter.on(ACTIONS.SELECT_ALL, () => {
+    selection.select("div[contenteditable]");
+  });
+  eventEmitter.on(ACTIONS.CLEAR_SELECTIONS, () => {
+    document.querySelector("div[contenteditable='true'")?.blur();
+    document.querySelectorAll(".selected").forEach((item) => item.classList.remove("selected"));
+    selection.clearSelection(true);
+  });
+  eventEmitter.on(ACTIONS.DELETE_SELECTED_ITEMS, () => {
+    const selectedItems = selection.getSelection();
+    selectedItems.forEach((item) => {
+      item.remove();
+      eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
+    });
+  });
 });
 
-function createDiv(id, x, y, textSize, color, text = "") {
-  const div = document.createElement("div");
-  div.setAttribute("contenteditable", "true");
-  div.setAttribute("id", id);
-  div.setAttribute("data-x", 0);
-  div.setAttribute("data-y", 0);
-  div.style.left = x + "px";
-  div.style.top = y + "px";
-  div.style.fontSize = textSize + "px";
-  div.style.color = color;
-  div.textContent = text
-  div.addEventListener("input", function (event) {
-    eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
-  });
-  div.addEventListener("click", function (event) {
-    event.target.setAttribute("contenteditable", "true");
-    event.target.focus();
-  });
-  div.addEventListener("blur", function (event) {
-    if (event.target.textContent === "") {
-      event.target.remove();
-    } else {
-      event.target.setAttribute("contenteditable", "false");
-      eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
-    }
-  });
-  setTimeout(function () {
-    div.focus();
-  }, 0);
-  return div;
-}
 
-function addDataToDom() {
+
+function loadData() {
   let data = getDataFromStorage();
   const isFirstTime = localStorage.getItem("bos-guide");
   if (data.length === 0 && isFirstTime !== "hide") {
@@ -151,17 +117,10 @@ function addDataToDom() {
   localStorage.setItem("bos-guide", "hide");
 }
 
-function resetAllEditableDivs() {
-  document.querySelectorAll("div[contenteditable='true']").forEach((item) => {
-    item.setAttribute("contenteditable", "false");
-  });
-}
-
 function updateSelectedElements() {
   const activeElement = document.querySelector("div[contenteditable='true']");
   const selectedItems = document.querySelectorAll(".selected");
   const allItems = [activeElement, ...selectedItems].filter((i) => i !== null);
-  console.log(allItems);
   if (!allItems.length === 0) return;
   allItems.forEach((item) => {
     item.style.fontSize = textSize + "px";
