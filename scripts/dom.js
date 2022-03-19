@@ -1,3 +1,5 @@
+import {eventEmitter} from "./EventEmitter"
+
 function createDiv(id, x, y, textSize, color, text = "") {
   const div = document.createElement("div");
   div.setAttribute("contenteditable", "true");
