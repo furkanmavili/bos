@@ -1,7 +1,14 @@
 {
   "name": "bos",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "keywords": ["editor", "javascript", "focus"],
+  "license": "MIT",
+  "author": "Furkan Mavili <furkanmavilix@gmail.com> (https://github.com/furkanmavili)",
+  "homepage": "https://github.com/furkanmavili/bos",
+  "bugs": {
+    "url": "https://github.com/furkanmavili/bos/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
