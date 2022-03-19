@@ -5,14 +5,12 @@ import { ACTIONS } from "./actions";
 import { eventEmitter } from "./EventEmitter";
 import { onScroll } from "./scroll";
 import { guideItems } from "./initialData";
-import { downloadAsImage } from "./export";
 import { initKeyboardEvents } from "./keyboard";
 import { createDiv, resetAllEditableDivs } from "./dom";
+import { getActiveColor } from "./color";
 import "../style.css";
 
 const ID_PREFIX = "bos-editor-";
-const COLORS = ["hsl(210, 17%, 82%)", "#f87171", "#22d3ee", "#22c55e", "#facc15"];
-let color = 0;
 let id = 0;
 let textSize = 16;
 
@@ -25,17 +23,11 @@ window.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("wheel", onScroll);
 
   window.addEventListener("click", function (event) {
-    if (event.target.id === "option") {
-      onOptionClick();
-      return;
-    } else if (event.target.id === "saveAs") {
-      downloadAsImage(app);
-    }
     if (event.target.id !== "app" || isSelectionActive) {
       return;
     }
     const nextId = ++id;
-    const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize, getColor(color));
+    const div = createDiv(ID_PREFIX + nextId, event.pageX, event.pageY, textSize, getActiveColor());
     removeSelections();
     resetAllEditableDivs();
     addInteract(div);
@@ -70,15 +62,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
     localStorage.setItem("bos_data", JSON.stringify(data));
   });
-  eventEmitter.on(ACTIONS.CHANGE_COLOR, (_, payload) => {
-    const selectedItems = getSelectedItems();
-    selectedItems.forEach((item) => {
-      item.style.color = payload.color;
-    });
-
-    option.style.color = payload.color;
-    eventEmitter.emit(ACTIONS.TAKE_SNAPSHOT);
-  });
+  
   eventEmitter.on(ACTIONS.SELECT_ALL, () => {
     selection.select("div[contenteditable]");
   });
@@ -131,10 +115,6 @@ function updateSelectedElements() {
 function updateFontSizeIndicator() {
   const element = document.querySelector(".text-size");
   element.style.fontSize = textSize + "px";
-}
-
-function onOptionClick(e) {
-  eventEmitter.emit(ACTIONS.CHANGE_COLOR, { color: COLORS[++color % COLORS.length] });
 }
 
 function getColor(index) {
