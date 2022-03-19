@@ -1,5 +1,5 @@
 import {eventEmitter} from "./EventEmitter"
-
+import {ACTIONS} from "./actions"
 function createDiv(id, x, y, textSize, color, text = "") {
   const div = document.createElement("div");
   div.setAttribute("contenteditable", "true");
