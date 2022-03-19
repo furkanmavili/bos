@@ -17,12 +17,29 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+a {
+  color: inherit;
+}
+a:visited {
+  color: inherit;
+}
 
 #app {
   position: relative;
   height: 100vh;
   overflow: hidden;
 }
+
+.link {
+  color: inherit;
+  cursor: pointer;
+  stroke: currentColor;
+  transition: var(--transition);
+}
+.link:hover {
+  color: var(--primary-color);
+}
+
 .logo {
   font-family: "Barlow Condensed", sans-serif;
   font-size: 24px;
@@ -30,12 +47,7 @@ body {
   display: inline-block;
   z-index: 2;
   text-decoration: none;
-  color: inherit;
   transition: var(--transition);
-}
-
-.logo:hover {
-  color: var(--primary-color);
 }
 
 div[contenteditable] {
@@ -61,25 +73,13 @@ div[contenteditable] {
   cursor: pointer;
   transition: var(--transition);
 }
-.saveAs {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  cursor: pointer;
-  transition: var(--transition);
-}
+
 .saveAs > svg {
   pointer-events: none;
 }
-.saveAs:hover {
-  color: var(--primary-color);
-}
-
-
 
 .selected {
   position: relative;
-
 }
 .selected:before {
   content: " ";
@@ -89,4 +89,14 @@ div[contenteditable] {
   top: -5px;
   bottom: -5px;
   border: 2px dashed var(--primary-color);
+}
+
+.bottom-right {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  transition: var(--transition);
+  gap: 10px;
 }
