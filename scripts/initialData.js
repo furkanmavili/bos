@@ -19,7 +19,7 @@ export const guideItems = [
      "id":"bos-editor-2",
      "x":716,
      "y":400,
-     "text":" Click Aa button for changing color",
+     "text":"Press 1, 2, 3, 4, 5 for different colors",
      "textSize":"22",
      "color":"rgb(34, 197, 94)"
   },
@@ -35,7 +35,7 @@ export const guideItems = [
      "id":"bos-editor-4",
      "x":718,
      "y":485,
-     "text":" Select texts with mouse and press DEL",
+     "text":" Select texts with mouse",
      "textSize":"24",
      "color":"rgb(201, 209, 217)"
   }
